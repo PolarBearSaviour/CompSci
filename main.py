@@ -246,60 +246,23 @@ def main():
 
     #done flag
     done = False
-    playerArea = Comp()
+    playArea = Comp()
     #game loop
     while not done:
-        ########################
-        #   Event Processing   #
-        ########################
+        handleEvents(players)
+        drawScreen(screen, playArea, movingsprites)
 
-
-        #gets each event for frame
-        for event in pygame.event.get():
-
-            #quits if press x
-            if event.type == pygame.QUIT:
-                done = True
-
-            #handles arrow key movement
-            if event.type == pygame.KEYDOWN:
-                for index in range(len(players)):
-                    players[index].handleKeyBoardEvent(event)
-
-        ########################
-        #     Redraw Frame     #
-        ########################
-
-        #clears screen and adds white background
-        screen.fill(WHITE)
-
-        #draws sprites and walls
-        movingsprites.draw(screen)
-        playerArea.wall_list.draw(screen)
-        playerArea.objectives.draw(screen)
-        label = fontRender.render("Player 1 Score: " + str(players[0].getScore()), 1, BLACK)
-        screen.blit(label, (0,0))
-        label = fontRender.render("Player 2 Score: " + str(players[1].getScore()), 1, BLACK)
-        screen.blit(label, (300, 0))
-        #shows drawn display
-        pygame.display.flip()
-
-        ########################
-        #      Game Logic      #
-        ########################
-
-
-        #move player
+        x = 0
         for index in range(len(players)):
-            players[index].move(playerArea.wall_list, playerArea.objectives)
+            renderLabel("Player {}: {}".format(index+1, players[index].getScore()), fontRender, (x, 0), screen)
+            x += 300
 
-        #ensures player doens't move off screen
-        for index in range(len(players)):
-            keepPlayerOnScreen(players[index])
-
+        updateObjects(players, playArea)
 
 
-        done = len(playerArea.objectives) == 0
+        done = len(playArea.objectives) == 0
+
+    # TODO: check what player is the winner and then declare them so! Along with tightening up the controls
 
     #quits pygame engine when quit game
     pygame.quit()
