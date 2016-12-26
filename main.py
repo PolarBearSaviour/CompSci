@@ -9,7 +9,7 @@
 import pygame
 import random
 from constants import *
-
+from utilites import * 
 
 ########################
 #      Wall Class      #
@@ -66,31 +66,32 @@ class MovingBlock(Block):
     #determines new position
     def move(self, walls):
 
-        #moves left or right
-        self.rect.x += self.change_x
+        if not self.change_x == 0:
+            #moves left or right
+            self.rect.x += self.change_x
 
-        #checks if player collides with wall, doesn't remove walls
-        block_hit_list = pygame.sprite.spritecollide(self, walls, False)
-        for block in block_hit_list:
-            #if player moves right, set player right side to left side of wall
-            if self.change_x > 0:
-                self.rect.right = block.rect.left
-            #else do the oppisite with left
-            else:
-                self.rect.left = block.rect.right
+            #checks if player collides with wall, doesn't remove walls
+            block_hit_list = pygame.sprite.spritecollide(self, walls, False)
+            for block in block_hit_list:
+                #if player moves right, set player right side to left side of wall
+                if self.change_x > 0:
+                    self.rect.right = block.rect.left
+                #else do the oppisite with left
+                else:
+                    self.rect.left = block.rect.right
+        else:
+            #moves up or down
+            self.rect.y += self.change_y
 
-        #moves up or down
-        self.rect.y += self.change_y
-
-        #checks if player collides with wall, doesn't remove walls
-        block_hit_list = pygame.sprite.spritecollide(self, walls, False)
-        for block in block_hit_list:
-            #if player moves down, set player bottom side to bottom side of wall
-            if self.change_y > 0:
-                self.rect.bottom = block.rect.top
-            #else do the oppisite with up
-            else:
-                self.rect.top = block.rect.bottom
+            #checks if player collides with wall, doesn't remove walls
+            block_hit_list = pygame.sprite.spritecollide(self, walls, False)
+            for block in block_hit_list:
+                #if player moves down, set player bottom side to bottom side of wall
+                if self.change_y > 0:
+                    self.rect.bottom = block.rect.top
+                #else do the oppisite with up
+                else:
+                    self.rect.top = block.rect.bottom
 
 
 
@@ -112,14 +113,22 @@ class Player(MovingBlock):
         elif self._keys['UP'] == event.key:
             self.change_y = -3
 
-    def incrementScore(self):
-        self._score += 1
+    def increaseScore(self, objective):
+        self._score += objective.worth
+
+    def move(self, walls, objectives):
+        MovingBlock.move(self, walls)
+        if not self.change_x == 0:
+            hitList = pygame.sprite.spritecollide(self, objectives, True)
+            for objective in hitList:
+                self.increaseScore(objective)
 
 class Objective(Block):
-    def __init__(self, x, y, width, height, colour):
-        super().__init__(x, y, width, height, colour)
+    def __init__(self, x, y):
+        super().__init__(x, y, 4, 4, PURPLE)
+        self.worth = random.randint(1, 5)
 
-        ########################
+########################
 #     Stage Class      #
 ########################
 
@@ -171,11 +180,12 @@ class Comp:
                 [0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1],
                 [1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1],
                 ]
+
         occupied = True
         numObjective = 0
-        while occupied and not numObjective == 5:
-            row = random.randint(0, 14)
-            col = random.randint(0, 14)
+        while occupied and not numObjective == 100:
+            row = random.randint(0, 28)
+            col = random.randint(0, 28)
             if grid[row][col] == 0:
                 grid[row][col] = 2
                 numObjective += 1
@@ -186,12 +196,13 @@ class Comp:
                 if grid[row][col]==1:
                     self.wall_list.add(Block((col*15)+15,(row*15)+15,15,15,BLUE))
                 elif grid[row][col] == 2:
-                    pass
+                    self.objectives.add(Objective((col*15) + 18, (row*15) + 18))
 
 
 ########################
 #         Main         #
 ########################
+
 
 #main function
 def main():
@@ -215,7 +226,7 @@ def main():
 
     #done flag
     done = False
-
+    playerArea = Comp()
     #game loop
     while not done:
 
@@ -243,18 +254,10 @@ def main():
 
 
         #move player
-        player.move(Comp().wall_list)
+        player.move(playerArea.wall_list, playerArea.objectives)
 
         #ensures player doens't move off screen
-        if player.rect.x < 0:
-            player.rect.x = 0
-        if player.rect.x > SCREEN_SIZE['WIDTH'] - player.rect.width:
-            player.rect.x = SCREEN_SIZE['WIDTH'] - player.rect.width
-        if player.rect.y < 0:
-            player.rect.y = 0
-        if player.rect.y > SCREEN_SIZE['HEIGHT'] - player.rect.height:
-            player.rect.y = SCREEN_SIZE['HEIGHT'] - player.rect.height
-
+        keepPlayerOnScreen(player)
 
         ########################
         #     Redraw Frame     #
@@ -265,7 +268,8 @@ def main():
 
         #draws sprites and walls
         movingsprites.draw(screen)
-        Comp().wall_list.draw(screen)
+        playerArea.wall_list.draw(screen)
+        playerArea.objectives.draw(screen)
 
         #shows drawn display
         pygame.display.flip()
