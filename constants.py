@@ -4,3 +4,4 @@ BLUE = (9, 72, 123)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 PURPLE = (255, 0, 255)
+SCREEN_SIZE = {'WIDTH': 465, 'HEIGHT': 465}

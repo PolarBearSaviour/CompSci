@@ -7,6 +7,7 @@
 #####################################
 
 import pygame
+import random
 from constants import *
 
 
@@ -84,7 +85,6 @@ class MovingBlock(Block):
         #checks if player collides with wall, doesn't remove walls
         block_hit_list = pygame.sprite.spritecollide(self, walls, False)
         for block in block_hit_list:
-
             #if player moves down, set player bottom side to bottom side of wall
             if self.change_y > 0:
                 self.rect.bottom = block.rect.top
@@ -93,15 +93,16 @@ class MovingBlock(Block):
                 self.rect.top = block.rect.bottom
 
 
+
 class Player(MovingBlock):
 
     def __init__(self, x, y, inputs):
         super().__init__(x,y, 8, 8, RED)
         self._keys = inputs
+        self._score = 0
 
     def handleKeyBoardEvent(self, event):
         self.resetSpeed()
-        
         if self._keys['LEFT'] == event.key:
             self.change_x = -3
         elif self._keys['RIGHT'] == event.key:
@@ -111,16 +112,24 @@ class Player(MovingBlock):
         elif self._keys['UP'] == event.key:
             self.change_y = -3
 
+    def incrementScore(self):
+        self._score += 1
+
+class Objective(Block):
+    def __init__(self, x, y, width, height, colour):
+        super().__init__(x, y, width, height, colour)
+
         ########################
 #     Stage Class      #
 ########################
 
 
-class Comp(object):
+class Comp:
 
 
     def __init__(self):
         self.wall_list = pygame.sprite.Group()
+        self.objectives = pygame.sprite.Group()
         self.enemy_sprites = pygame.sprite.Group()
 
         #outer walls
@@ -162,12 +171,22 @@ class Comp(object):
                 [0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1],
                 [1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1],
                 ]
+        occupied = True
+        numObjective = 0
+        while occupied and not numObjective == 5:
+            row = random.randint(0, 14)
+            col = random.randint(0, 14)
+            if grid[row][col] == 0:
+                grid[row][col] = 2
+                numObjective += 1
 
         #adds 15x15 block for every 1 in grid
         for row in range(0,29):
             for col in range(0,29):
                 if grid[row][col]==1:
                     self.wall_list.add(Block((col*15)+15,(row*15)+15,15,15,BLUE))
+                elif grid[row][col] == 2:
+                    pass
 
 
 ########################
@@ -181,7 +200,7 @@ def main():
     pygame.init()
 
     #31x15,31x15 - logo is 29x29 and 1 at each end for gap around logo
-    screen = pygame.display.set_mode([465, 465])
+    screen = pygame.display.set_mode([SCREEN_SIZE['WIDTH'], SCREEN_SIZE['HEIGHT']])
 
     #title
     pygame.display.set_caption('CompSci')
@@ -229,12 +248,12 @@ def main():
         #ensures player doens't move off screen
         if player.rect.x < 0:
             player.rect.x = 0
-        if player.rect.x > 457:
-            player.rect.x = 457
+        if player.rect.x > SCREEN_SIZE['WIDTH'] - player.rect.width:
+            player.rect.x = SCREEN_SIZE['WIDTH'] - player.rect.width
         if player.rect.y < 0:
             player.rect.y = 0
-        if player.rect.y > 457:
-            player.rect.y = 457
+        if player.rect.y > SCREEN_SIZE['HEIGHT'] - player.rect.height:
+            player.rect.y = SCREEN_SIZE['HEIGHT'] - player.rect.height
 
 
         ########################
