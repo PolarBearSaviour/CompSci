@@ -9,7 +9,7 @@
 import pygame
 import random
 from constants import *
-from utilites import * 
+from utilites import *
 
 ########################
 #      Wall Class      #
@@ -36,7 +36,7 @@ class Block(pygame.sprite.Sprite):
 
 
 ########################
-#     Player Class     #
+#     Block Class     #
 ########################
 
 
@@ -95,23 +95,32 @@ class MovingBlock(Block):
 
 
 
+########################
+#     Player Class     #
+########################
 class Player(MovingBlock):
 
-    def __init__(self, x, y, inputs):
-        super().__init__(x,y, 8, 8, RED)
+    def __init__(self, x, y, inputs, colour):
+        super().__init__(x,y, 8, 8, colour)
         self._keys = inputs
         self._score = 0
+    def getScore(self):
+        return self._score
 
     def handleKeyBoardEvent(self, event):
-        self.resetSpeed()
+
         if self._keys['LEFT'] == event.key:
-            self.change_x = -3
+            self.change_x = -1
+            self.change_y = 0
         elif self._keys['RIGHT'] == event.key:
-            self.change_x = 3
+            self.change_x = 1
+            self.change_y = 0
         elif self._keys['DOWN'] == event.key:
-            self.change_y = 3
+            self.change_y = 1
+            self.change_x = 0
         elif self._keys['UP'] == event.key:
-            self.change_y = -3
+            self.change_y = -1
+            self.change_x = 0
 
     def increaseScore(self, objective):
         self._score += objective.worth
@@ -123,16 +132,20 @@ class Player(MovingBlock):
             for objective in hitList:
                 self.increaseScore(objective)
 
+
+########################
+#     Objective Class  #
+########################
 class Objective(Block):
     def __init__(self, x, y):
-        super().__init__(x, y, 4, 4, PURPLE)
+        super().__init__(x, y, 5, 5, PURPLE)
         self.worth = random.randint(1, 5)
+
+
 
 ########################
 #     Stage Class      #
 ########################
-
-
 class Comp:
 
 
@@ -183,7 +196,7 @@ class Comp:
 
         occupied = True
         numObjective = 0
-        while occupied and not numObjective == 100:
+        while occupied and not numObjective == 10:
             row = random.randint(0, 28)
             col = random.randint(0, 28)
             if grid[row][col] == 0:
@@ -215,22 +228,27 @@ def main():
 
     #title
     pygame.display.set_caption('CompSci')
-    inputs = {"LEFT": pygame.K_LEFT, "RIGHT" : pygame.K_RIGHT, "UP" : pygame.K_UP, "DOWN" : pygame.K_DOWN}
+    inputs1 = {"LEFT": pygame.K_LEFT, "RIGHT" : pygame.K_RIGHT, "UP" : pygame.K_UP, "DOWN" : pygame.K_DOWN}
+    input2 = {"LEFT" : 97, "RIGHT" : 100, "UP": 119, "DOWN": 115}
     #create player
-    player = Player(50, 50, inputs)
+    players = [Player(50, 50, inputs1, RED), Player(100, 100, input2, GREEN)]
     movingsprites = pygame.sprite.Group()
-    movingsprites.add(player)
+
+    for index in range(len(players)):
+        movingsprites.add(players[index])
 
     #sets frame rate
     clock = pygame.time.Clock()
+    #sets frame rate limit
+    clock.tick(60)
+
+    fontRender = setupFonts(15)
 
     #done flag
     done = False
     playerArea = Comp()
     #game loop
     while not done:
-
-
         ########################
         #   Event Processing   #
         ########################
@@ -245,19 +263,8 @@ def main():
 
             #handles arrow key movement
             if event.type == pygame.KEYDOWN:
-                player.handleKeyBoardEvent(event)
-
-
-        ########################
-        #      Game Logic      #
-        ########################
-
-
-        #move player
-        player.move(playerArea.wall_list, playerArea.objectives)
-
-        #ensures player doens't move off screen
-        keepPlayerOnScreen(player)
+                for index in range(len(players)):
+                    players[index].handleKeyBoardEvent(event)
 
         ########################
         #     Redraw Frame     #
@@ -270,12 +277,29 @@ def main():
         movingsprites.draw(screen)
         playerArea.wall_list.draw(screen)
         playerArea.objectives.draw(screen)
-
+        label = fontRender.render("Player 1 Score: " + str(players[0].getScore()), 1, BLACK)
+        screen.blit(label, (0,0))
+        label = fontRender.render("Player 2 Score: " + str(players[1].getScore()), 1, BLACK)
+        screen.blit(label, (300, 0))
         #shows drawn display
         pygame.display.flip()
 
-        #sets frame rate limit
-        clock.tick(60)
+        ########################
+        #      Game Logic      #
+        ########################
+
+
+        #move player
+        for index in range(len(players)):
+            players[index].move(playerArea.wall_list, playerArea.objectives)
+
+        #ensures player doens't move off screen
+        for index in range(len(players)):
+            keepPlayerOnScreen(players[index])
+
+
+
+        done = len(playerArea.objectives) == 0
 
     #quits pygame engine when quit game
     pygame.quit()
