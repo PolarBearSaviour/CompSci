@@ -40,12 +40,12 @@ class Block(pygame.sprite.Sprite):
 
 
 #moving block class, implements functionality for blocks that cut about the joint
-class Player(Block):
+class MovingBlock(Block):
 
     #constructor
-    def __init__(self, x, y):
+    def __init__(self, x, y, height, width, colour):
         ##call constructor
-        super().__init__(x,y, 8, 8, RED)
+        super().__init__(x, y, height, width, colour)
         self.change_x = 0
         self.change_y = 0
 
@@ -93,7 +93,25 @@ class Player(Block):
                 self.rect.top = block.rect.bottom
 
 
-########################
+class Player(MovingBlock):
+
+    def __init__(self, x, y, inputs):
+        super().__init__(x,y, 8, 8, RED)
+        self._keys = inputs
+
+    def handleKeyBoardEvent(self, event):
+        self.resetSpeed()
+        
+        if self._keys['LEFT'] == event.key:
+            self.change_x = -3
+        elif self._keys['RIGHT'] == event.key:
+            self.change_x = 3
+        elif self._keys['DOWN'] == event.key:
+            self.change_y = 3
+        elif self._keys['UP'] == event.key:
+            self.change_y = -3
+
+        ########################
 #     Stage Class      #
 ########################
 
@@ -167,9 +185,9 @@ def main():
 
     #title
     pygame.display.set_caption('CompSci')
-
+    inputs = {"LEFT": pygame.K_LEFT, "RIGHT" : pygame.K_RIGHT, "UP" : pygame.K_UP, "DOWN" : pygame.K_DOWN}
     #create player
-    player = Player(50, 50)
+    player = Player(50, 50, inputs)
     movingsprites = pygame.sprite.Group()
     movingsprites.add(player)
 
@@ -197,22 +215,7 @@ def main():
 
             #handles arrow key movement
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    #player.resetSpeed()
-                    player.setSpeedX(-3)
-                    player.setSpeedY(0)
-                elif event.key == pygame.K_RIGHT:
-                    #player.resetSpeed()
-                    player.setSpeedX(3)
-                    player.setSpeedY(0)
-                elif event.key == pygame.K_UP:
-                    #player.resetSpeed()
-                    player.setSpeedY(-3)
-                    player.setSpeedX(0)
-                elif event.key == pygame.K_DOWN:
-                    #player.resetSpeed()
-                    player.setSpeedY(3)
-                    player.setSpeedX(0)
+                player.handleKeyBoardEvent(event)
 
 
         ########################
