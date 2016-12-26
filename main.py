@@ -15,8 +15,7 @@ from constants import *
 ########################
 
 
-class Wall(pygame.sprite.Sprite):
-
+class Block(pygame.sprite.Sprite):
     #constructor
     def __init__(self, x, y, width, height, colour):
 
@@ -40,29 +39,15 @@ class Wall(pygame.sprite.Sprite):
 ########################
 
 
-#player class, controls blob that cuts about the joint
-class Player(pygame.sprite.Sprite):
-
-    #change in direction
-    change_x = 0
-    change_y = 0
+#moving block class, implements functionality for blocks that cut about the joint
+class Player(Block):
 
     #constructor
     def __init__(self, x, y):
-
         ##call constructor
-        super().__init__()
-
-        #create rectangle image with passed dimensions make it red
-        self.image = pygame.Surface([8, 8])
-        self.image.fill(RED)
-
-        #create rectangle shape from rectangle image
-        self.rect = self.image.get_rect()
-
-        #set rectangle shape position
-        self.rect.y = y
-        self.rect.x = x
+        super().__init__(x,y, 8, 8, RED)
+        self.change_x = 0
+        self.change_y = 0
 
     #sets new x direction of player
     def setSpeedX(self, x):
@@ -115,9 +100,6 @@ class Player(pygame.sprite.Sprite):
 
 class Comp(object):
 
-    #list of walls and list of enemy sprites
-    wall_list = None
-    enemy_sprites = None
 
     def __init__(self):
         self.wall_list = pygame.sprite.Group()
@@ -167,7 +149,7 @@ class Comp(object):
         for row in range(0,29):
             for col in range(0,29):
                 if grid[row][col]==1:
-                    self.wall_list.add(Wall((col*15)+15,(row*15)+15,15,15,BLUE))
+                    self.wall_list.add(Block((col*15)+15,(row*15)+15,15,15,BLUE))
 
 
 ########################
