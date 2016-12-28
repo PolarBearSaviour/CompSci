@@ -1,6 +1,8 @@
 from constants import *
 import pygame
 
+
+
 def setupFonts(size, font = None):
     pygame.font.init()
     if font == None:

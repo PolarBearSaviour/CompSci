@@ -146,6 +146,19 @@ class Objective(Block):
 ########################
 #     Stage Class      #
 ########################
+class Level:
+    def __init__(self, levelLayout):
+        self.wall_list = pygame.sprite.Group()
+        self.objectives = pygame.sprite.Group()
+        self.enemy_sprites = pygame.sprite.Group()
+        self.levelURL = '../level/' + levelLayout
+        self.level
+
+    def readInLevel(self):
+        f = open(self.levelURL, 'w')
+        for line in f:
+            print(line)
+
 class Comp:
 
 
@@ -153,14 +166,6 @@ class Comp:
         self.wall_list = pygame.sprite.Group()
         self.objectives = pygame.sprite.Group()
         self.enemy_sprites = pygame.sprite.Group()
-
-        #outer walls
-        walls = [[0, 0, 15, 600, BLUE],
-                 [585, 0, 15, 600, BLUE],
-                 [15, 0, 570, 15, BLUE],
-                 [15, 585, 570, 15, BLUE]
-                ]
-
 
         #compsci logo
         grid = [[1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1],
