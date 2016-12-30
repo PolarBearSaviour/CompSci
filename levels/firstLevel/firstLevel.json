@@ -1,5 +1,7 @@
 {
   "number-of-players" : 2,
   "random-objectives" : true,
-  "number-of-objectives" : 10
+  "number-of-objectives" : 10,
+  "number-of-rows" : 29,
+  "number-of-columns" : 29
 }
