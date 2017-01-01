@@ -146,19 +146,6 @@ class Objective(Block):
 ########################
 #     Stage Class      #
 ########################
-class Level:
-    def __init__(self, levelLayout):
-        self.wall_list = pygame.sprite.Group()
-        self.objectives = pygame.sprite.Group()
-        self.enemy_sprites = pygame.sprite.Group()
-        self.levelURL = '../level/' + levelLayout
-        self.level
-
-    def readInLevel(self):
-        f = open(self.levelURL, 'w')
-        for line in f:
-            print(line)
-
 class Comp:
 
 
