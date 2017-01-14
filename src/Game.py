@@ -10,6 +10,7 @@ class Game:
         self._level = Level('firstLevel')
         self._screen = ScreenManager(465, 465)
         self._walls = pygame.sprite.Group()
+        self._players = []
         self._sprites = pygame.sprite.Group()
 
     def initLevel(self):
@@ -32,12 +33,31 @@ class Game:
                 elif column == MAP_KEY['SPAWN']:
                     print(column)
                     print("({0}, {1})".format(x,y))
-                    self._sprites.add(Player(xPos(secSize['width'], x), yPos(secSize['height'], y), PLAYER_KEYS[numPlayers], BLUE))
+                    self._players.append(Player(xPos(secSize['width'], x), yPos(secSize['height'], y), PLAYER_KEYS[numPlayers], BLUE))
+                    numPlayers += 1
+                    self._sprites.add(self._players[-1])
+
+    def handleEvents(self):
+        #gets each event for frame
+        for event in pygame.event.get():
+            #quits if press x
+            if event.type == pygame.QUIT:
+                return True
+
+            #handles arrow key movement
+            if event.type == pygame.KEYDOWN:
+
+                for player in self._players:
+                    player.handleKeyBoardEvent(event)
+            return False
 
     def initScreen(self):
         self._screen.setFrameRate(60)
 
     def tick(self):
+        self.handleEvents()
+        for player in self._players:
+            player.move(self._walls)
         self._screen.drawScreen([self._walls, self._sprites])
 
     def run(self):

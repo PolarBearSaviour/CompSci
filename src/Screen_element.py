@@ -109,9 +109,10 @@ class Player(MovingBlock):
     def increaseScore(self, objective):
         self._score += objective.worth
 
-    def move(self, walls, objectives):
+    """def move(self, walls, objectives):
         MovingBlock.move(self, walls)
         if not self.change_x == 0:
             hitList = pygame.sprite.spritecollide(self, objectives, True)
             for objective in hitList:
                 self.increaseScore(objective)
+"""

@@ -1,5 +1,5 @@
 import unittest
-from Level import Level, MissingAttribute
+from Level import Level, MissingAttribute, MismatchingMetadata, NOT_FOUND
 from copy import copy
 LEVEL= [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -83,6 +83,24 @@ class LevelTest(unittest.TestCase):
             Level._checkfieldsValid(obj)
 
 
+    def test_validate_columns(self):
+        obj = TestObject()
+        try:
+            Level._validateRowsColumns(obj)
+        except Exception:
+            self.fail("Exception thrown")
+        keys = ['number-of-rows', 'number-of-columns']
+        for k in keys:
+            obj._metadata[k] = 5
+            with self.assertRaises(MismatchingMetadata):
+                Level._validateRowsColumns(obj)
+            obj._metadata[k] = 20
+
+    def test_find_element(self):
+        obj = TestObject()
+        self.assertEqual(Level._findElementInLevel(obj, 1000), NOT_FOUND)
+        positions = [[4,1],[4,2], [4,3], [4,4]]
+        self.assertListEqual(Level._findElementInLevel(obj, 3), positions)
 
 
 if __name__ == '__main__':

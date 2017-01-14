@@ -105,29 +105,24 @@ class Level:
 
             # Throws error if number of columns does not match with the JSON file
             if columnCounter != self._metadata['number-of-columns']:
-                raise mismatchingMetadata("Error: number of columns in {0}.json does not macth {0}.txt".format(self.levelName))
+                raise MismatchingMetadata("Error: number of columns in {0}.json does not macth {0}.txt".format(self.levelName))
 
             rowCounter += 1
 
         # Throws an error if number of rows don't match
-        if not rowCounter == self._metadata['number-of-rows']:
-            raise mismatchingMetadata("Error: number of rows in {0}.json does not macth {0}.txt".format(self.levelName))
+        if rowCounter != self._metadata['number-of-rows']:
+            raise MismatchingMetadata("Error: number of rows in {0}.json does not macth {0}.txt".format(self.levelName))
 
 
-    def _findElementInLevel(self, element, mutliple = False):
+    def _findElementInLevel(self, element):
         """
             Finds a given element in the level and will return the position.
             Will return -1 if not found or there mutliple then an array of
             positions
         """
-        positions = list()
-        for i, row in enumerate(self._level):
-            for j, col in enumerate(row):
-                if col == element:
-                    if mutliple:
-                        positions.append([i, j])
-                    else:
-                        return [i,j]
+
+        positions = [[i,j] for i, row in enumerate(self._level) for j, col in enumerate(row) if col == element]
+
         if not positions:
             return NOT_FOUND
         else:
@@ -147,18 +142,18 @@ class Level:
                 row = random.randint(0, 28)
                 col = random.randint(0, 28)
                 occupied = not self._level[row][col] == 0
-            self._level[row][col] = item
+            self._level[row][col] = value
 
     def _checkSuitableNumber(self, mapKey, metaKey):
         """
             Makes sure there is the correct number of a given item
             in the level (i.e. the txt and json files match up)
         """
-        values = self._findElementInLevel(MAP_KEY[mapKey], True)
+        values = self._findElementInLevel(MAP_KEY[mapKey])
         if values == NOT_FOUND:
-            raise Exception("Error: no {0} in {1}".format(mapKey, self.levelName))
+            raise MismatchingMetadata("Error: no {0} in {1}".format(mapKey, self.levelName))
         elif self._metadata[metaKey] != len(values):
-            raise Exception("Error: not enough {0} in {1}".format(mapKey, self.levelName))
+            raise MismatchingMetadata("Error: not enough {0} in {1}".format(mapKey, self.levelName))
 
     def _parseMetadata(self):
         """
