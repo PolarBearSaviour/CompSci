@@ -1,9 +1,8 @@
 import json
 import random
 import os
-
+from constants import MAP_KEY
 NOT_FOUND = -1
-MAP_KEY = {"BLANK": 0, "WALL": 1, "SPAWN": 2, "OBJECTIVES": 3, "POWER-UPS" : 4, "TRAPS" : 5}
 REQUIRED_FIELDS = ('number-of-players', 'number-of-objectives',
                    'random-objectives', 'number-of-rows',
                    'number-of-columns')
