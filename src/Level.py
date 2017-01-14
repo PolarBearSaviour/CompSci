@@ -12,6 +12,12 @@ NUMERIC_FIELD = ('number-of-players', 'number-of-objectives', 'number-of-rows',
 
 BOOLEAN_FIELDS = ('random-objectives', 'random-spawns')
 
+class MismatchingMetadata(Exception):
+    pass
+
+class MissingAttribute(Exception):
+    pass
+
 
 class Level:
     """
@@ -41,17 +47,18 @@ class Level:
             only
         """
         currentPath = os.path.dirname(__file__)
-        levelURL = os.path.relpath('../levels/{0}/{0}.txt'.format(self.levelName), currentPath)
         #creates URL for the level assets
+        levelURL = os.path.relpath('../levels/{0}/{0}.txt'.format(self.levelName), currentPath)
 
-        file = open(levelURL, 'r')
+        f = open(levelURL, 'r')
 
         # Reads in each line and converts them into an integer
-        for line in file:
+        for line in f:
             elements = line.split(',')
             data = [int(element) for element in elements]
             self._level.append(data)
 
+        f.close()
         #creates URL for the metadata of the level
         metadataURL = os.path.relpath('../levels/{0}/{0}.json'.format(self.levelName), currentPath)
 
@@ -67,20 +74,20 @@ class Level:
         # Makes sure all the required feilds are in the metadata dictionary
         for field in REQUIRED_FIELDS:
             if not field in self._metadata:
-                raise Exception("Error: Missed out required field {0}. In file {1}.json".format(field, levelName))
+                raise MissingAttribute("Error: Missed out required field {0}. In file {1}.json".format(field, self.levelName))
 
         # Makes sure all the fields are of the correct type
         for key, value in self._metadata.items():
             if key in NUMERIC_FIELD:
                 if isinstance(value, int):
                     if value < 0:
-                        raise Exception("Error: value of {0} must be greater than zero. File: {1}.json".format(key, self.levelName))
+                        raise ValueError("Error: value of {0} must be greater than zero. File: {1}.json".format(key, self.levelName))
                 else:
-                    raise Exception("Error: value of {0} must be an integer. File: {1}".format(key, self.levelName))
+                    raise TypeError("Error: value of {0} must be an integer. File: {1}".format(key, self.levelName))
             elif key in BOOLEAN_FIELDS:
                 # Makes sure that the values in the json file were explicity true or false
                 if not value == True and not value == False:
-                    raise Exception("Error: value of {0} must be a boolean (true or false). File: {1}.json".format(key, self.levelName))
+                    raise TypeError("Error: value of {0} must be a boolean (true or false). File: {1}.json".format(key, self.levelName))
 
 
     def _validateRowsColumns(self):
@@ -98,13 +105,13 @@ class Level:
 
             # Throws error if number of columns does not match with the JSON file
             if columnCounter != self._metadata['number-of-columns']:
-                raise Exception("Error: number of columns in {0}.json does not macth {0}.txt".format(self.levelName))
+                raise mismatchingMetadata("Error: number of columns in {0}.json does not macth {0}.txt".format(self.levelName))
 
             rowCounter += 1
 
         # Throws an error if number of rows don't match
         if not rowCounter == self._metadata['number-of-rows']:
-            raise Exception("Error: number of rows in {0}.json does not macth {0}.txt".format(self.levelName))
+            raise mismatchingMetadata("Error: number of rows in {0}.json does not macth {0}.txt".format(self.levelName))
 
 
     def _findElementInLevel(self, element, mutliple = False):
@@ -188,6 +195,10 @@ class Level:
             return self._level
         else:
             raise Exception("Error: {} is not initiated".format(self.levelName))
+
+
+    def getMetadata(self):
+        return self._metadata
 
     def accessMetadata(self, nameOfElement):
         """

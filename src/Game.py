@@ -20,7 +20,7 @@ class Game:
         secSize = self._screen.mapLevelToGrid(row, columns)
         print(secSize)
         level = self._level.getLevel()
-
+        print(level)
         xPos = lambda width, x :(x*width) + width
         yPos = lambda height, y: (y*height) + height
 
@@ -29,13 +29,16 @@ class Game:
             for x, column in enumerate(row):
                 if column == MAP_KEY['WALL']:
                     self._walls.add(Block(xPos(secSize['width'], x), yPos(secSize['height'], y), 15, 15, BLUE))
-                
+                elif column == MAP_KEY['SPAWN']:
+                    print(column)
+                    print("({0}, {1})".format(x,y))
+                    self._sprites.add(Player(xPos(secSize['width'], x), yPos(secSize['height'], y), PLAYER_KEYS[numPlayers], BLUE))
 
     def initScreen(self):
         self._screen.setFrameRate(60)
 
     def tick(self):
-        self._screen.drawScreen(self._walls)
+        self._screen.drawScreen([self._walls, self._sprites])
 
     def run(self):
         self.initLevel()

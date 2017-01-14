@@ -25,7 +25,9 @@ class ScreenManager:
 
     def drawScreen(self, sprites):
         self._screen.fill(WHITE)
-        sprites.draw(self._screen)
+        for sprite in sprites:
+            sprite.draw(self._screen)
+
         pygame.display.flip()
 
     def mapLevelToGrid(self, row, column):
